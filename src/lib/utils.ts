@@ -42,18 +42,23 @@ export function formatRelativeDate(
 }
 
 /**
- * Formats a number into a compact, human-readable string.
+ * Formats a number into a compact, human-readable format.
  *
- * This function converts large numbers into a shorter format using "compact" notation (e.g., 1000 -> "1K"),
- * and limits the number of decimal places to one.
+ * Converts large numbers to a shorter format using compact notation (e.g., 1K for 1000).
  *
  * @param n - The number to format.
- * @returns A formatted string representing the compact number.
+ * @param locale - The locale to use for formatting (default is "en-US").
+ * @param maximumFractionDigits - Maximum number of decimal places (default is 1).
+ * @returns A formatted string representing the number.
  */
-export function formatNumber(n: number): string {
-  return Intl.NumberFormat("en-US", {
-    notation: "compact", // Use compact notation (e.g., "1K" for 1000)
-    maximumFractionDigits: 1, // Limit the number of decimal places to one
+export function formatNumber(
+  n: number,
+  locale: string = "en-US",
+  maximumFractionDigits: number = 1,
+): string {
+  return Intl.NumberFormat(locale, {
+    notation: "compact", // Use compact notation
+    maximumFractionDigits: maximumFractionDigits, // Limit decimal places
   }).format(n);
 }
 

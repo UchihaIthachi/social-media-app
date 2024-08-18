@@ -1,41 +1,67 @@
-import { validateRequest } from "@/auth";
-import prisma from "@/lib/prisma";
-import { CommentsPage, getCommentDataInclude } from "@/lib/types";
-import { NextRequest } from "next/server";
+import { validateRequest } from "@/auth"; // Import the function to validate user authentication.
+import prisma from "@/lib/prisma"; // Import the Prisma client instance for database operations.
+import { CommentsPage, getCommentDataInclude } from "@/lib/types"; // Import types and utility functions related to comments.
+import { NextRequest } from "next/server"; // Import Next.js server request type.
 
+/**
+ * Handler function for GET requests to retrieve comments for a specific post.
+ * The function performs pagination based on cursor and returns comments in ascending order by creation date.
+ */
 export async function GET(
   req: NextRequest,
-  { params: { postId } }: { params: { postId: string } },
+  { params: { postId } }: { params: { postId: string } }, // Destructure the postId from the request parameters.
 ) {
   try {
+    // Extract the cursor parameter from the URL search parameters.
+    // The cursor is used for reverse pagination, allowing the client to fetch the previous set of results.
     const cursor = req.nextUrl.searchParams.get("cursor") || undefined;
 
+    // Define the number of comments to fetch in each request (pagination size).
     const pageSize = 5;
 
+    // Validate the user authentication using a custom authentication function.
     const { user } = await validateRequest();
 
+    // If the user is not authenticated, return a 401 Unauthorized response.
     if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
+    // Fetch comments from the database with pagination.
     const comments = await prisma.comment.findMany({
       where: { postId },
       include: getCommentDataInclude(user.id),
       orderBy: { createdAt: "asc" },
-      take: -pageSize - 1,
+      take: pageSize + 1, // Fetch one extra comment to check if there are more available.
       cursor: cursor ? { id: cursor } : undefined,
     });
 
-    const previousCursor = comments.length > pageSize ? comments[0].id : null;
+    // Determine the cursor for the next page of results.
+    const hasNextPage = comments.length > pageSize;
+    const nextCursor = hasNextPage ? comments[pageSize].id : null;
 
+    // Prepare the response data.
     const data: CommentsPage = {
-      comments: comments.length > pageSize ? comments.slice(1) : comments,
-      previousCursor,
+      comments: comments.slice(0, pageSize), // Return only the requested page of comments.
+      nextCursor, // Include the cursor for fetching the next page.
     };
 
-    return Response.json(data);
+    // Return the data as a JSON response.
+    return new Response(
+      JSON.stringify(data),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
   } catch (error) {
-    console.error(error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    // Log the error for server-side debugging.
+    console.error("Error fetching comments:", error);
+
+    // Return a 500 Internal Server Error response if an exception occurs.
+    return new Response(
+      JSON.stringify({ error: "Internal server error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
+    );
   }
 }
