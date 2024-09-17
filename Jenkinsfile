@@ -10,7 +10,7 @@ library identifier: "shared-lib@main", retriever: modernSCM(
 pipeline {
     agent any
     tools {
-        nodejs 'nodejs-22.8.0' // Ensure this version is installed in Jenkins
+        nodejs 'nodejs-22.8.0'
     }
     environment {
         POSTGRES_URL = credentials('postgres_url')
@@ -26,8 +26,12 @@ pipeline {
         NEXT_PUBLIC_STREAM_KEY = credentials('next_public_stream_key')
         STREAM_SECRET = credentials('stream_secret')
         CRON_SECRET = credentials('cron_secret')
-        VERCEL_TOKEN = credentials('vercel_token') // Use your simple ID here
+        VERCEL_TOKEN = credentials('vercel_token')
     }
+    
+    // Declare script variable for global use
+    def script
+    
     stages {
         stage("Init") {
             steps {
@@ -44,10 +48,10 @@ pipeline {
                     }
                     echo "package.json contents: ${readFile('package.json')}"
 
-                    // Load script.groovy for Windows
+                    // Load script.groovy and store in a global variable
                     if (fileExists('script.groovy')) {
-                        gv = load "script.groovy"
-                        echo "script.groovy found"
+                        script = load "script.groovy"
+                        echo "script.groovy loaded"
                     } else {
                         error "script.groovy not found"
                     }
@@ -69,7 +73,6 @@ pipeline {
                 }
             }
         }
-
         stage("Build Project") {
             steps {
                 script {
@@ -98,7 +101,6 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                 }
             }
         }
-
         stage("Increment Version") {
             steps {
                 script {
@@ -109,7 +111,6 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                 }
             }
         }
-
         stage("Deploy to Vercel") {
             steps {
                 script {
@@ -136,7 +137,8 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                     // Rollback the Vercel deployment to the previous production deployment
                     echo "Rolling back to the previous Vercel deployment..."
                     bat """
-                        vercel rollback --token $VERCEL_TOKEN
+                        set VERCEL_TOKEN=${env.VERCEL_TOKEN}
+                        vercel rollback --yes
                     """
                 } catch (Exception e) {
                     echo "Rollback failed: ${e.message}"
@@ -146,9 +148,8 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
         success {
             script {
                 echo 'Pipeline executed successfully!'
-                commitVersionUpdate()
+                script.commitVersionUpdate()
             }
         }
     }
 }
-
