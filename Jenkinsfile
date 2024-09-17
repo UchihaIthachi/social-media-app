@@ -20,6 +20,11 @@ pipeline {
         VERCEL_TOKEN = credentials('vercel_token') // Use your simple ID here
     }
     stages {
+        stage("Clean Workspace") {
+            steps {
+                cleanWs() // Clean the workspace to ensure a fresh start
+            }
+        }
         stage("Init") {
             steps {
                 script {
@@ -36,6 +41,14 @@ pipeline {
                 }
             }
         }
+        stage('Increment Version') {
+            steps {
+                script {
+                    // Increment the version number
+                    bat 'npm version patch -m "Bump version to %s"'
+                }
+            }
+        }
         stage('Install Dependencies') {
             steps {
                 script {
@@ -46,7 +59,7 @@ pipeline {
         stage('Install Vercel CLI and Verify Vercel Installation') {
             steps {
                 script {
-                    bat 'npm install -g vercel'
+                    bat 'npm install -g vercel@latest'
                     bat 'vercel --version'
                 }
             }
@@ -87,7 +100,7 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                     try {
                         // Deploy to Vercel
                         bat """
-                            vercel --token $VERCEL_TOKEN --prod --confirm
+                            vercel --token $VERCEL_TOKEN --prod --yes
                         """
                     } catch (Exception e) {
                         echo "Deployment to Vercel failed: ${e.message}"
@@ -115,7 +128,16 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
             }
         }
         success {
-            echo 'Pipeline executed successfully!'
+            script {
+                // Add GitHub deployment message
+                bat """
+                    git config --global user.email "jenkins@example.com"
+                    git config --global user.name "Jenkins"
+                    git commit -am "Deploy to Vercel: ${env.BUILD_URL}"
+                    git push
+                """
+                echo 'Pipeline executed successfully!'
+            }
         }
     }
 }
