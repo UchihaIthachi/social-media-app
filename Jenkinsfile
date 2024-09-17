@@ -4,7 +4,20 @@ pipeline {
         nodejs 'nodejs-22.8.0' // Make sure this version is installed in Jenkins
     }
     environment {
-        VERCEL_TOKEN = credentials('vercel_token') // Jenkins credential ID for Vercel token
+        POSTGRES_URL = credentials('postgres_url')
+        POSTGRES_PRISMA_URL = credentials('postgres_prisma_url')
+        POSTGRES_URL_NO_SSL = credentials('postgres_url_no_ssl')
+        POSTGRES_URL_NON_POOLING = credentials('postgres_url_non_pooling')
+        POSTGRES_USER = credentials('postgres_user')
+        POSTGRES_HOST = credentials('postgres_host')
+        POSTGRES_PASSWORD = credentials('postgres_password')
+        POSTGRES_DATABASE = credentials('postgres_database')
+        UPLOADTHING_SECRET = credentials('uploadthing_secret')
+        NEXT_PUBLIC_UPLOADTHING_APP_ID = credentials('next_public_uploadthing_app_id')
+        NEXT_PUBLIC_STREAM_KEY = credentials('next_public_stream_key')
+        STREAM_SECRET = credentials('stream_secret')
+        CRON_SECRET = credentials('cron_secret')
+        VERCEL_TOKEN = credentials('vercel_token') // Use your simple ID here
     }
     stages {
         stage("Init") {
@@ -34,10 +47,29 @@ pipeline {
         stage("Build Project") {
             steps {
                 script {
-                    // Build the project
+                    // Write the secrets to a `.env` file
+                    def envContent = """
+POSTGRES_URL=${POSTGRES_URL}
+POSTGRES_PRISMA_URL=${POSTGRES_PRISMA_URL}
+POSTGRES_URL_NO_SSL=${POSTGRES_URL_NO_SSL}
+POSTGRES_URL_NON_POOLING=${POSTGRES_URL_NON_POOLING}
+POSTGRES_USER=${POSTGRES_USER}
+POSTGRES_HOST=${POSTGRES_HOST}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+POSTGRES_DATABASE=${POSTGRES_DATABASE}
+UPLOADTHING_SECRET=${UPLOADTHING_SECRET}
+NEXT_PUBLIC_UPLOADTHING_APP_ID=${NEXT_PUBLIC_UPLOADTHING_APP_ID}
+NEXT_PUBLIC_STREAM_KEY=${NEXT_PUBLIC_STREAM_KEY}
+STREAM_SECRET=${STREAM_SECRET}
+CRON_SECRET=${CRON_SECRET}
+VERCEL_TOKEN=${VERCEL_TOKEN}
+"""
+                    // Create the .env file
+                    writeFile file: '.env', text: envContent
+                    
+                    // Run the build command
                     bat 'npm run build'
                 }
-            }
         }
         stage("Deploy to Vercel") {
             steps {
