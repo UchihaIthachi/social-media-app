@@ -1,43 +1,37 @@
 pipeline {
     agent any
-
-    environment {
-        // Vercel token for authentication
-        VERCEL_TOKEN = credentials('vercel_token')
+    tools {
+        nodejs 'nodejs-22.7.0' // Make sure this version is installed in Jenkins
     }
-
+    environment {
+        VERCEL_TOKEN = credentials('vercel_token') // Jenkins credential ID for Vercel token
+    }
     stages {
-        stage('Checkout Code') {
-            steps {
-                // Checkout code from the repository
-                git branch: 'master', url: 'https://github.com/UchihaIthachi/social-media-app'
-            }
-        }
-
-        stage('Version Increment') {
+        stage("Init") {
             steps {
                 script {
-                    // Increment the version in package.json
-                    bat 'npm version patch -m "Jenkins build: %s"'
+                    echo "Pipeline initiated by ${params.NAME}"
 
-                    // Add, commit, and push the new version to Git
-                    bat 'git add package.json'
-                    bat 'git commit -m "chore: version bump"'
-                    bat 'git push origin main'
+                    // Print Node.js and npm versions
+                    bat 'node --version'
+                    bat 'npm --version'
+                    
+                    // Check for package.json
+                    if (!fileExists('package.json')) {
+                        error "package.json not found"
+                    }
                 }
             }
         }
-
-        stage('Install Dependencies') {
+        stage("Install Dependencies") {
             steps {
                 script {
-                    // Install Node.js dependencies
+                    // Install npm dependencies
                     bat 'npm install'
                 }
             }
         }
-
-        stage('Build') {
+        stage("Build Project") {
             steps {
                 script {
                     // Build the project
@@ -45,46 +39,41 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy to Vercel') {
+        stage("Deploy to Vercel") {
             steps {
                 script {
-                    // Deploy to Vercel and capture the deployment URL for rollback if needed
-                    DEPLOY_URL = bat(script: 'npx vercel --prod --token %VERCEL_TOKEN%', returnStdout: true).trim()
-                }
-            }
-        }
-
-        stage('Post-Deployment Test') {
-            steps {
-                script {
-                    // Run tests to validate the deployment (e.g., ping the URL, check status)
-                    def responseCode = bat(script: "curl -o NUL -s -w \"%{http_code}\" ${DEPLOY_URL}", returnStdout: true).trim()
-                    
-                    // Check if deployment was successful (status code 200)
-                    if (responseCode != '200') {
-                        error "Deployment failed with status code: ${responseCode}"
+                    try {
+                        // Deploy to Vercel
+                        bat """
+                            vercel --token $VERCEL_TOKEN --prod --confirm
+                        """
+                    } catch (Exception e) {
+                        echo "Deployment to Vercel failed: ${e.message}"
+                        currentBuild.result = 'FAILURE'
+                        error "Deployment to Vercel failed"
                     }
                 }
             }
         }
     }
-
     post {
-        success {
-            echo 'Deployment to Vercel was successful!'
-        }
         failure {
             script {
-                echo 'Deployment failed. Initiating rollback...'
-                
-                // Rollback using Vercel's command or revert to previous Git commit
-                bat 'npx vercel rollback --token %VERCEL_TOKEN%'
+                echo "Pipeline failed. Initiating rollback..."
 
-                // Revert the version bump if rollback was triggered
-                bat 'git reset --hard HEAD~1'
-                bat 'git push -f origin main'
+                try {
+                    // Rollback the Vercel deployment to the previous production deployment
+                    echo "Rolling back to the previous Vercel deployment..."
+                    bat """
+                        vercel rollback --token $VERCEL_TOKEN
+                    """
+                } catch (Exception e) {
+                    echo "Rollback failed: ${e.message}"
+                }
             }
+        }
+        success {
+            echo 'Pipeline executed successfully!'
         }
     }
 }
