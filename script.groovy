@@ -22,9 +22,6 @@ def versionIncrement() {
     return "${newVersion}-${BUILD_NUMBER}"
 }
 
-// Ensure this script file ends with the correct method
-return this
-
 
 def commitVersionUpdate() {
     sshagent(['jenkins-github-ssh']) {
