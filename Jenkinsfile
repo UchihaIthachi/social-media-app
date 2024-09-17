@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        nodejs 'nodejs-22.7.0' // Make sure this version is installed in Jenkins
+        nodejs 'nodejs-22.8.0' // Make sure this version is installed in Jenkins
     }
     environment {
         VERCEL_TOKEN = credentials('vercel_token') // Jenkins credential ID for Vercel token

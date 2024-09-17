@@ -5,7 +5,7 @@ import { NextRequest } from "next/server"; // Import Next.js server request type
 
 /**
  * Handler function for GET requests to retrieve comments for a specific post.
- * The function performs pagination based on cursor and returns comments in ascending order by creation date.
+ * The function performs pagination based on a cursor and returns comments in ascending order by creation date.
  */
 export async function GET(
   req: NextRequest,
@@ -13,7 +13,6 @@ export async function GET(
 ) {
   try {
     // Extract the cursor parameter from the URL search parameters.
-    // The cursor is used for reverse pagination, allowing the client to fetch the previous set of results.
     const cursor = req.nextUrl.searchParams.get("cursor") || undefined;
 
     // Define the number of comments to fetch in each request (pagination size).
@@ -39,29 +38,29 @@ export async function GET(
       cursor: cursor ? { id: cursor } : undefined,
     });
 
-    // Determine the cursor for the next page of results.
+    // Determine if there is a next page and set the next cursor.
     const hasNextPage = comments.length > pageSize;
     const nextCursor = hasNextPage ? comments[pageSize].id : null;
 
     // Prepare the response data.
     const data: CommentsPage = {
       comments: comments.slice(0, pageSize), // Return only the requested page of comments.
-      nextCursor, // Include the cursor for fetching the next page.
+      previousCursor: nextCursor, // Use `nextCursor` for pagination.
     };
 
     // Return the data as a JSON response.
-    return new Response(
-      JSON.stringify(data),
-      { status: 200, headers: { "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     // Log the error for server-side debugging.
     console.error("Error fetching comments:", error);
 
     // Return a 500 Internal Server Error response if an exception occurs.
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

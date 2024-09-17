@@ -190,3 +190,77 @@ export interface NotificationCountInfo {
 export interface MessageCountInfo {
   unreadCount: number; // Total number of unread messages.
 }
+
+// export type PostData = {
+//   id: string;
+//   content: string;
+//   createdAt: Date;
+//   user: {
+//     id: string;
+//     username: string;
+//     displayName: string;
+//     avatarUrl: string | null;
+//     bio: string | null;
+//     createdAt: Date;
+//     followers: { followerId: string }[];
+//     _count: {
+//       posts: number;
+//       followers: number;
+//     };
+//   };
+//   likes: {
+//     userId: string;
+//   }[];
+//   bookmarks: {
+//     userId: string;
+//   }[];
+//   _count: {
+//     likes: number;
+//     bookmarks: number;
+//     comments: number; // Added to support comment count
+//   };
+//   attachments: {
+//     id: string;
+//     url: string;
+//     type: "IMAGE" | "VIDEO";
+//   }[];
+// };
+
+// // @/lib/types.ts
+// export type Post = {
+//   id: string;
+//   title: string;
+//   content: string;
+//   user: {
+//     id: string;
+//     username: string;
+//     displayName: string;
+//     avatarUrl: string | null;
+//     bio: string | null;
+//     createdAt: Date;
+//     followers: { followerId: string }[];
+//     _count: {
+//       posts: number;
+//       followers: number;
+//     };
+//   };
+//   likes: {
+//     userId: string;
+//   }[];
+//   bookmarks: {
+//     userId: string;
+//   }[];
+//   _count: {
+//     likes: number;
+//     bookmarks: number;
+//   };
+//   attachments: {
+//     url: string;
+//   }[];
+// };
+
+// Update PostsPage if necessary
+export interface PostsPage {
+  posts: PostData[];
+  nextCursor: string | null;
+}
