@@ -47,6 +47,7 @@ pipeline {
                     // Load script.groovy for Windows
                     if (fileExists('script.groovy')) {
                         gv = load "script.groovy"
+                        echo "script.groovy found"
                     } else {
                         error "script.groovy not found"
                     }
