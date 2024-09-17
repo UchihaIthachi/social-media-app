@@ -48,7 +48,7 @@ pipeline {
 
                     // Load script.groovy for Windows
                     if (fileExists('script.groovy')) {
-                        gv = load "script.groovy"
+                        script = load "script.groovy"
                         echo "script.groovy found"
                     } else {
                         error "script.groovy not found"
@@ -71,7 +71,6 @@ pipeline {
                 }
             }
         }
-
         stage("Build Project") {
             steps {
                 script {
@@ -100,7 +99,6 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                 }
             }
         }
-
         stage("Increment Version") {
             steps {
                 script {
@@ -111,7 +109,6 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                 }
             }
         }
-
         stage("Deploy to Vercel") {
             steps {
                 script {
@@ -138,7 +135,7 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                     // Rollback the Vercel deployment to the previous production deployment
                     echo "Rolling back to the previous Vercel deployment..."
                     bat """
-                        vercel rollback --token $VERCEL_TOKEN
+                        vercel rollback --token $VERCEL_TOKEN --yes
                     """
                 } catch (Exception e) {
                     echo "Rollback failed: ${e.message}"
@@ -148,9 +145,8 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
         success {
             script {
                 echo 'Pipeline executed successfully!'
-                commitVersionUpdate()
+                script.commitVersionUpdate()
             }
         }
     }
 }
-
