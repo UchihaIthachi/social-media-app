@@ -33,6 +33,14 @@ pipeline {
                     if (!fileExists('package.json')) {
                         error "package.json not found"
                     }
+                    echo "package.json contents: ${readFile('package.json')}"
+
+                    // Load script.groovy for Windows
+                    if (fileExists('script.groovy')) {
+                        gv = load "script.groovy"
+                    } else {
+                        error "script.groovy not found"
+                    }
                 }
             }
         }
