@@ -43,6 +43,14 @@ pipeline {
                 }
             }
         }
+        stage('Install Vercel CLI and Verify Vercel Installation') {
+            steps {
+                script {
+                    bat 'npm install -g vercel'
+                    bat 'vercel --version'
+                }
+            }
+        }
 
         stage("Build Project") {
             steps {
@@ -69,14 +77,6 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                     
                     // Run the build command
                     bat 'npm run build'
-                }
-            }
-        }
-        stage('Install Vercel CLI and Verify Vercel Installation') {
-            steps {
-                script {
-                    bat 'npm install -g vercel'
-                    bat 'vercel --version'
                 }
             }
         }
