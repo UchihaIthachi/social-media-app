@@ -7,8 +7,6 @@ library identifier: "shared-lib@main", retriever: modernSCM(
     ]
 )
 
-def script
-
 pipeline {
     agent any
     tools {
@@ -71,6 +69,7 @@ pipeline {
                 }
             }
         }
+
         stage("Build Project") {
             steps {
                 script {
@@ -99,6 +98,7 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                 }
             }
         }
+
         stage("Increment Version") {
             steps {
                 script {
@@ -109,6 +109,7 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                 }
             }
         }
+
         stage("Deploy to Vercel") {
             steps {
                 script {
@@ -135,7 +136,7 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                     // Rollback the Vercel deployment to the previous production deployment
                     echo "Rolling back to the previous Vercel deployment..."
                     bat """
-                        vercel rollback --token $VERCEL_TOKEN --yes
+                        vercel rollback --token $VERCEL_TOKEN
                     """
                 } catch (Exception e) {
                     echo "Rollback failed: ${e.message}"
