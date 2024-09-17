@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        nodejs 'nodejs-22.8.0' // Make sure this version is installed in Jenkins
+        nodejs 'nodejs-22.8.0' // Ensure this version is installed in Jenkins
     }
     environment {
         POSTGRES_URL = credentials('postgres_url')
@@ -20,7 +20,23 @@ pipeline {
         VERCEL_TOKEN = credentials('vercel_token') // Use your simple ID here
     }
     stages {
-        stage("Init") {
+        stage('Checkout') {
+            steps {
+                script {
+                    // Checkout code from the repository
+                    checkout([$class: 'GitSCM', 
+                        branches: [[name: '*/master']],
+                        userRemoteConfigs: [[url: 'https://github.com/UchihaIthachi/social-media-app']]
+                    ])
+                }
+            }
+        }
+        stage("Clean Workspace") {
+            steps {
+                cleanWs() // Clean the workspace to ensure a fresh start
+            }
+        }
+        stage('Init') {
             steps {
                 script {
                     echo "Pipeline initiated by ${params.NAME}"
@@ -29,10 +45,17 @@ pipeline {
                     bat 'node --version'
                     bat 'npm --version'
                     
+                    // List files in the workspace for debugging
+                    bat 'dir'
+                    
                     // Check for package.json
                     if (!fileExists('package.json')) {
                         error "package.json not found"
                     }
+
+                    // Configure Git user
+                    bat 'git config --global user.email "jenkins@example.com"'
+                    bat 'git config --global user.name "Jenkins"'
                 }
             }
         }
