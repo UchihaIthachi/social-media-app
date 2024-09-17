@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 // Checkout code from the repository
-                git branch: 'main', url: 'https://github.com/UchihaIthachi/social-media-app'
+                git branch: 'master', url: 'https://github.com/UchihaIthachi/social-media-app'
             }
         }
 
