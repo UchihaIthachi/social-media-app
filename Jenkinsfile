@@ -23,14 +23,14 @@ pipeline {
                 }
             }
         }
-        stage("Install Dependencies") {
+        stage('Install Dependencies') {
             steps {
                 script {
-                    // Install npm dependencies
-                    bat 'npm install'
+                    bat 'npm install --legacy-peer-deps'
                 }
             }
         }
+
         stage("Build Project") {
             steps {
                 script {
