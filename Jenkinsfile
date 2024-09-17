@@ -1,3 +1,12 @@
+// Load the shared library from GitHub
+library identifier: "shared-lib@main", retriever: modernSCM(
+    [
+        $class       : 'GitSCMSource',
+        remote       : 'https://github.com/UchihaIthachi/jenkins-shared-library',
+        credentialsId: 'GithubCredentials',
+    ]
+)
+
 pipeline {
     agent any
     tools {
