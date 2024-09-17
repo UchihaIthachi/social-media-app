@@ -20,11 +20,6 @@ pipeline {
         VERCEL_TOKEN = credentials('vercel_token') // Use your simple ID here
     }
     stages {
-        stage("Clean Workspace") {
-            steps {
-                cleanWs() // Clean the workspace to ensure a fresh start
-            }
-        }
         stage("Init") {
             steps {
                 script {
@@ -33,9 +28,6 @@ pipeline {
                     // Print Node.js and npm versions
                     bat 'node --version'
                     bat 'npm --version'
-                    
-                    // List files in the workspace for debugging
-                    bat 'dir'
                     
                     // Check for package.json
                     if (!fileExists('package.json')) {
