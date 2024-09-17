@@ -30,7 +30,7 @@ def commitVersionUpdate() {
     sshagent(['jenkins-github-ssh']) {
         bat 'git config user.email "jenkins@ci-cd.com"'
         bat 'git config user.name "Jenkins User"'
-        bat "git remote set-url origin git@github.com:YourUsername/your-repo-name.git"
+        bat "git remote set-url origin git@github.com/UchihaIthachi/social-media-app"
         bat "git add ."
         bat 'git commit -m "Jenkins Version Bump"'
         bat 'git push origin HEAD:main'
