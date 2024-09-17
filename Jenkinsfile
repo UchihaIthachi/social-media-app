@@ -102,7 +102,8 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
         stage("Increment Version") {
             steps {
                 script {
-                    def newVersion = versionIncrement()
+                    // Ensure the method is called from the loaded script
+                    def newVersion = script.versionIncrement()
                     env.IMAGE_TAG = newVersion
                     echo "New Image Version Tag is ${env.IMAGE_TAG}"
                 }

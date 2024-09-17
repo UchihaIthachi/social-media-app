@@ -1,3 +1,4 @@
+// script.groovy
 def versionIncrement() {
     echo "Incrementing the app version"
 
@@ -20,6 +21,10 @@ def versionIncrement() {
     // Return the new version tag combined with the build number
     return "${newVersion}-${BUILD_NUMBER}"
 }
+
+// Ensure this script file ends with the correct method
+return this
+
 
 def commitVersionUpdate() {
     sshagent(['jenkins-github-ssh']) {
