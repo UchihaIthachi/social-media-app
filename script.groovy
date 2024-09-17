@@ -33,3 +33,5 @@ def commitVersionUpdate() {
         bat 'git push origin HEAD:main'
     }
 }
+
+    return this
