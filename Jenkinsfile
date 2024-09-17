@@ -34,6 +34,9 @@ pipeline {
                     bat 'node --version'
                     bat 'npm --version'
                     
+                    // List files in the workspace for debugging
+                    bat 'dir'
+                    
                     // Check for package.json
                     if (!fileExists('package.json')) {
                         error "package.json not found"
