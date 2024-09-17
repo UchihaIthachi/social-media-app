@@ -70,6 +70,7 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                     // Run the build command
                     bat 'npm run build'
                 }
+            }
         }
         stage("Deploy to Vercel") {
             steps {
