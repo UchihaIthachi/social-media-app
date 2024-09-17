@@ -72,6 +72,15 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
                 }
             }
         }
+        stage('Install Vercel CLI and Verify Vercel Installation') {
+            steps {
+                script {
+                    bat 'npm install -g vercel'
+                    bat 'vercel --version'
+                }
+            }
+        }
+
         stage("Deploy to Vercel") {
             steps {
                 script {
