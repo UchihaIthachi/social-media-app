@@ -27,7 +27,7 @@ return this
 
 
 def commitVersionUpdate() {
-    sshagent(['jenkins-github-ssh']) {
+    sshagent(['UchihaIthachi']) {
         bat 'git config user.email "jenkins@ci-cd.com"'
         bat 'git config user.name "Jenkins User"'
         bat "git remote set-url origin git@github.com/UchihaIthachi/social-media-app"
