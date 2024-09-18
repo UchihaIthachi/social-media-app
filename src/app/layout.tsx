@@ -26,8 +26,8 @@ const geistMono = localFont({
 // Define metadata for the HTML document
 export const metadata: Metadata = {
   title: {
-    template: "%s | bugbook", // Template for dynamic page titles
-    default: "bugbook", // Default title when no template is used
+    template: "%s | Hbook", // Template for dynamic page titles
+    default: "Hbook", // Default title when no template is used
   },
   description: "The social media app for powernerds", // Description for SEO
 };
