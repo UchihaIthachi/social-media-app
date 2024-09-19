@@ -127,27 +127,27 @@ VERCEL_TOKEN=${VERCEL_TOKEN}
             }
         }
     }
-    post {
-        failure {
-            script {
-                echo "Pipeline failed. Initiating rollback..."
+    // post {
+    //     failure {
+    //         script {
+    //             echo "Pipeline failed. Initiating rollback..."
 
-                try {
-                    // Rollback the Vercel deployment to the previous production deployment
-                    echo "Rolling back to the previous Vercel deployment..."
-                    bat """
-                        vercel rollback --token $VERCEL_TOKEN
-                    """
-                } catch (Exception e) {
-                    echo "Rollback failed: ${e.message}"
-                }
-            }
-        }
-        success {
-            script {
-                echo 'Pipeline executed successfully!'
-                script.commitVersionUpdate()
-            }
-        }
-    }
+    //             try {
+    //                 // Rollback the Vercel deployment to the previous production deployment
+    //                 echo "Rolling back to the previous Vercel deployment..."
+    //                 bat """
+    //                     vercel rollback --token $VERCEL_TOKEN
+    //                 """
+    //             } catch (Exception e) {
+    //                 echo "Rollback failed: ${e.message}"
+    //             }
+    //         }
+    //     }
+    //     success {
+    //         script {
+    //             echo 'Pipeline executed successfully!'
+    //             script.commitVersionUpdate()
+    //         }
+    //     }
+    // }
 }
